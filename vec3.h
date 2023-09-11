@@ -11,7 +11,6 @@ using std::sqrt;
 class vec3 {
     public:
         // greater precision and range in double
-        // e[0] == i, e[1] == j, e[2] == k, you get the idea
         double e[3];
         vec3() : e{0, 0, 0} {}
         vec3(double e0, double e1, double e2) : e{e0, e1, e2} {}
@@ -92,7 +91,9 @@ inline double dot(const vec3 &u, const vec3 &v) {
          + u.e[2] * v.e[2];
 }
 
-// use distributive property for vector cross product
+// x, y, z positively oriented orthonormal basis
+// x * y = z, y * z = x, z * x = y, anticommutativity, no linear independence
+// use distributive property for vector cross product and simplify
 
 inline vec3 cross(const vec3 &u, const vec3 &v) {
     return vec3(u.e[1] * v.e[2] - u.e[2] * v.e[1],
