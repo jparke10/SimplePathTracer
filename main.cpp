@@ -4,9 +4,14 @@
 #include "vec3.h"
 #include "ray.h"
 
-// returns color for a given scene ray (black as placeholder)
+// returns color for a given scene ray
 Color ray_color(const Ray& r) {
-    return Color(0, 0, 0);
+    // lerp from white to blue (image will render other way)
+    Vec3 unit_direction = unit_vector(r.direction());
+    auto magnitude = 0.5 * (unit_direction.y() + 1.);
+    // start value white (255, 255, 255), end value blue (75, 156, 211)
+    return (1 - magnitude) * Color(1., 1., 1.) + magnitude * Color(0.297, 0.613, 0.828);
+    // no relation to UNC i just like carolina blue
 }
 
 int main() {
