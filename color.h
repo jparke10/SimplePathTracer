@@ -4,9 +4,9 @@
 #include <iostream>
 #include "vec3.h"
 
-using color = vec3;
+using Color = Vec3;
 
-void write_color(std::ostream& out, color pixel_color) {
+void write_color(std::ostream& out, Color pixel_color) {
     // translate vector components into [0, 255] color values
     out << static_cast<int>(255.999 * pixel_color.x()) << ' '
         << static_cast<int>(255.999 * pixel_color.y()) << ' '

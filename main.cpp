@@ -2,21 +2,52 @@
 #include <chrono>
 #include "color.h"
 #include "vec3.h"
+#include "ray.h"
+
+// returns color for a given scene ray (black as placeholder)
+Color ray_color(const Ray& r) {
+    return Color(0, 0, 0);
+}
 
 int main() {
-    // Image
-    int image_width = 256;
-    int image_height = 256;
-    // Render
+    // image
+    auto aspect_ratio = 16. / 9.;
+    int image_width = 400;
+    // calculate image height using defined aspect ratio and validate
+    int image_height = static_cast<int>(image_width / aspect_ratio);
+    image_height = (image_height < 1) ? 1 : image_height;
+    // camera
+    auto viewport_height = 2.;
+    auto viewport_width = viewport_height * (static_cast<double>(image_width) / image_height);
+    auto focal_length = 1.;
+    // x goes right, y goes up, -z goes in viewing direction (right handed)
+    auto camera_center = Point3(0, 0, 0);
+    // define vectors for vertical and horizontal viewport edges
+    // vertical render is top to bottom (down), so negative
+    auto viewport_u = Vec3(viewport_width, 0, 0);
+    auto viewport_v = Vec3(0, -viewport_height, 0);
+    // define horizontal and vertical pixel delta vectors (dist between each pixel)
+    auto pixel_delta_u = viewport_u / image_width;
+    auto pixel_delta_v = viewport_v / image_height;
+    // define location of top left pixel
+    auto viewport_top_left = camera_center - Vec3(0, 0, focal_length)
+                                           - (viewport_u / 2) - (viewport_v / 2);
+    // square pixels make this easy
+    auto pixel00_location = viewport_top_left + 0.5 * (pixel_delta_u + pixel_delta_v);
+    // render
     // PPM standard: P3 means ASCII color values
-    // Columns, then rows, then the max color value
-    // Pixels are RGB triplets
+    // columns, then rows, then the max color value
+    // pixels are RGB triplets
     std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
     auto start = std::chrono::system_clock::now();
     for (int j = 0; j < image_height; ++j) {
         std::clog << "\rLines remaining: " << (image_height - j) << ' ' << std::flush;
         for (int i = 0; i < image_width; ++i) {
-            auto pixel_color = color(double(i)/(image_width - 1), double(j)/(image_height - 1), 0);
+            // trace rays
+            auto pixel_center = pixel00_location + (i * pixel_delta_u) + (j * pixel_delta_v);
+            auto ray_direction = pixel_center - camera_center;
+            Ray r(pixel_center, ray_direction);
+            Color pixel_color = ray_color(r);
             write_color(std::cout, pixel_color);
         }
     }

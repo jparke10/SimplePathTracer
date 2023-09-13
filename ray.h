@@ -3,20 +3,20 @@
 
 #include "vec3.h"
 
-class ray {
+class Ray {
     private:
-        point3 orig;
-        vec3 dir;
+        Point3 orig;
+        Vec3 dir;
 
     public:
-        ray() {}
-        ray(const point3& origin, const vec3& direction) : orig(origin), dir(direction) {}
+        Ray() {}
+        Ray(const Point3& origin, const Vec3& direction) : orig(origin), dir(direction) {}
 
-        point3 origin() const { return orig; }
-        vec3 direction() const { return dir; }
+        Point3 origin() const { return orig; }
+        Vec3 direction() const { return dir; }
 
         // t defines the ray's magnitude
-        point3 at(double t) const {
+        Point3 at(double t) const {
             return orig + t * dir;
         }
 };
