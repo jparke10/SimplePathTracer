@@ -86,8 +86,8 @@ inline Vec3 operator/(Vec3 v, double t) {
 // vector dot product is nth (here 3) summation of a_i * b_i with vectors a, b
 
 inline double dot(const Vec3 &u, const Vec3 &v) {
-    return u.e[0] * v.e[0] +
-         + u.e[1] * v.e[1] +
+    return u.e[0] * v.e[0]
+         + u.e[1] * v.e[1]
          + u.e[2] * v.e[2];
 }
 
