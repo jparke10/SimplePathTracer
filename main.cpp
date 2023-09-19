@@ -9,17 +9,17 @@ double contact_sphere(const Point3& center, double radius, const Ray& r) {
     // definition of dot product: P (point) and C (center), (P-C) * (P-C) = r^2
     // test if our ray makes contact with sphere (satisfies the sphere equation)
     Vec3 oc = r.origin() - center;
-    auto a = dot(r.direction(), r.direction());
-    auto b = 2. * dot(oc, r.direction());
-    auto c = dot(oc, oc) - radius*radius;
-    auto quadratic = (b * b) - (4 * a * c);
+    auto a = r.direction().length_squared();
+    auto half_b = dot(oc, r.direction());
+    auto c = oc.length_squared() - radius*radius;
+    auto quadratic = (half_b * half_b) - (a * c);
     if (quadratic < 0) {
         return -1.;
     } else {
         // opt to normalize vector by unit length, so we need to do full quadratic instead of bool
         // square root is expensive, but more efficient later
         // TODO: account for positive form (behind camera) when there's more spheres
-        return (-b - sqrt(quadratic)) / (2. * a);
+        return (-half_b - sqrt(quadratic)) / a;
     }
 }
 
