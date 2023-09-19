@@ -7,12 +7,12 @@
 bool contact_sphere(const Point3& center, double radius, const Ray& r) {
     // sphere equation: x^2 + y^2 + z^2 = r^2 (not including position)
     // definition of dot product: P (point) and C (center), (P-C) * (P-C) = r^2
-    // test if our ray satisfies the sphere equation (makes contact with sphere)
+    // test if our ray makes contact with sphere (satisfies the sphere equation)
     Vec3 oc = r.origin() - center;
     auto a = dot(r.direction(), r.direction());
     auto b = 2. * dot(oc, r.direction());
     auto c = dot(oc, oc) - radius*radius;
-    auto quadratic = b*b - 4*a*c;
+    auto quadratic = b * b - 4 * a * c;
     return (quadratic >= 0);
 }
 
