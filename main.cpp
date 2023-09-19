@@ -4,7 +4,7 @@
 #include "vec3.h"
 #include "ray.h"
 
-bool contact_sphere(const Point3& center, double radius, const Ray& r) {
+double contact_sphere(const Point3& center, double radius, const Ray& r) {
     // sphere equation: x^2 + y^2 + z^2 = r^2 (not including position)
     // definition of dot product: P (point) and C (center), (P-C) * (P-C) = r^2
     // test if our ray makes contact with sphere (satisfies the sphere equation)
@@ -12,15 +12,26 @@ bool contact_sphere(const Point3& center, double radius, const Ray& r) {
     auto a = dot(r.direction(), r.direction());
     auto b = 2. * dot(oc, r.direction());
     auto c = dot(oc, oc) - radius*radius;
-    auto quadratic = b * b - 4 * a * c;
-    return (quadratic >= 0);
+    auto quadratic = (b * b) - (4 * a * c);
+    if (quadratic < 0) {
+        return -1.;
+    } else {
+        // opt to normalize vector by unit length, so we need to do full quadratic instead of bool
+        // square root is expensive, but more efficient later
+        // TODO: account for positive form (behind camera) when there's more spheres
+        return (-b - sqrt(quadratic)) / (2. * a);
+    }
 }
 
 // returns color for a given scene ray
 Color ray_color(const Ray& r) {
     // render sample sphere at -1 z, in neutral position
-    if (contact_sphere(Point3(0, 0, -1), 0.5, r))
-        return Color(0, 1, 0);
+    double ray_length = contact_sphere(Point3(0, 0, -1), 0.5, r);
+    if (ray_length > 0.) {
+        Vec3 normal = unit_vector(r.at(ray_length) - Vec3(0, 0, -1));
+        // normalized vector makes color map really easy
+        return 0.5 * Color(normal.x() + 1, normal.y() + 1, normal.z() + 1);
+    }
 
     // lerp from white to blue (image will render other way)
     Vec3 unit_direction = unit_vector(r.direction());
