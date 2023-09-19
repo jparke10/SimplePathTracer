@@ -4,8 +4,24 @@
 #include "vec3.h"
 #include "ray.h"
 
+bool contact_sphere(const Point3& center, double radius, const Ray& r) {
+    // sphere equation: x^2 + y^2 + z^2 = r^2 (not including position)
+    // definition of dot product: P (point) and C (center), (P-C) * (P-C) = r^2
+    // test if our ray satisfies the sphere equation (makes contact with sphere)
+    Vec3 oc = r.origin() - center;
+    auto a = dot(r.direction(), r.direction());
+    auto b = 2. * dot(oc, r.direction());
+    auto c = dot(oc, oc) - radius*radius;
+    auto quadratic = b*b - 4*a*c;
+    return (quadratic >= 0);
+}
+
 // returns color for a given scene ray
 Color ray_color(const Ray& r) {
+    // render sample sphere at -1 z, in neutral position
+    if (contact_sphere(Point3(0, 0, -1), 0.5, r))
+        return Color(0, 1, 0);
+
     // lerp from white to blue (image will render other way)
     Vec3 unit_direction = unit_vector(r.direction());
     auto magnitude = 0.5 * (unit_direction.y() + 1.);
