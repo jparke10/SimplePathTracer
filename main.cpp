@@ -10,7 +10,7 @@
 Color ray_color(const Ray& r, const Hittable& world) {
     // render sample sphere at -1 z, in neutral position
     HitRecord rec;
-    if (world.hit(r, 0, infinity, rec)) {
+    if (world.hit(r, Interval(0, infinity), rec)) {
         return 0.5 * (rec.normal + Color(1, 1, 1));
     }
     // lerp from white to blue (image will render other way)
