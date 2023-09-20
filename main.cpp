@@ -1,38 +1,18 @@
 #include <iostream>
 #include <chrono>
+#include "include.h"
 #include "color.h"
-#include "vec3.h"
-#include "ray.h"
-
-double contact_sphere(const Point3& center, double radius, const Ray& r) {
-    // sphere equation: x^2 + y^2 + z^2 = r^2 (not including position)
-    // definition of dot product: P (point) and C (center), (P-C) * (P-C) = r^2
-    // test if our ray makes contact with sphere (satisfies the sphere equation)
-    Vec3 oc = r.origin() - center;
-    auto a = r.direction().length_squared();
-    auto half_b = dot(oc, r.direction());
-    auto c = oc.length_squared() - radius * radius;
-    auto quadratic = (half_b * half_b) - (a * c);
-    if (quadratic < 0) {
-        return -1.;
-    } else {
-        // opt to normalize vector by unit length, so we need to do full quadratic instead of bool
-        // square root is expensive, but more efficient later
-        // TODO: account for positive form (behind camera) when there's more spheres
-        return (-half_b - sqrt(quadratic)) / a;
-    }
-}
+#include "hittable.h"
+#include "hittable_list.h"
+#include "sphere.h"
 
 // returns color for a given scene ray
-Color ray_color(const Ray& r) {
+Color ray_color(const Ray& r, const Hittable& world) {
     // render sample sphere at -1 z, in neutral position
-    double ray_length = contact_sphere(Point3(0, 0, -1), 0.5, r);
-    if (ray_length > 0.) {
-        Vec3 normal = unit_vector(r.at(ray_length) - Vec3(0, 0, -1));
-        // normalized vector makes color map really easy
-        return 0.5 * Color(normal.x() + 1, normal.y() + 1, normal.z() + 1);
+    HitRecord rec;
+    if (world.hit(r, 0, infinity, rec)) {
+        return 0.5 * (rec.normal + Color(1, 1, 1));
     }
-
     // lerp from white to blue (image will render other way)
     Vec3 unit_direction = unit_vector(r.direction());
     auto magnitude = 0.5 * (unit_direction.y() + 1.);
@@ -48,6 +28,10 @@ int main() {
     // calculate image height using defined aspect ratio and validate
     int image_height = static_cast<int>(image_width / aspect_ratio);
     image_height = (image_height < 1) ? 1 : image_height;
+    // world
+    HittableList world;
+    world.add(make_shared<Sphere>(Point3(0, 0, -1), 0.5));
+    world.add(make_shared<Sphere>(Point3(0, -100.5, -1), 100));
     // camera
     auto viewport_height = 2.;
     auto viewport_width = viewport_height * (static_cast<double>(image_width) / image_height);
@@ -79,7 +63,7 @@ int main() {
             auto pixel_center = pixel00_location + (i * pixel_delta_u) + (j * pixel_delta_v);
             auto ray_direction = pixel_center - camera_center;
             Ray r(camera_center, ray_direction);
-            Color pixel_color = ray_color(r);
+            Color pixel_color = ray_color(r, world);
             write_color(std::cout, pixel_color);
         }
     }
