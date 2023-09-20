@@ -27,6 +27,7 @@ class HittableList : public Hittable {
                     rec = temp_rec;
                 }
             }
+            return hit_anything;
         }
 };
 
